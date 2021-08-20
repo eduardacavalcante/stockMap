@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta nameW="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+          crossorigin="anonymous">
+
+    <title>My Wallet</title>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h3>Stock Analyzes</h3>
+    <hr>
+
+    <div>
+        User: <span sec:authentication="firstName"></span> <br>
+        <br>
+    </div>
+    <form th:action="@{/mywallet}" th:object="${stock}" class="form-inline">
+
+            <a th:href="@{/homeStock}" class="btn btn-primary btn-sm mr-5 mb-3"> New Search </a>
+
+            <input class="form-control  ml-5 mr-sm-2 mb-3" type="search" name="stockName" placeholder="Search by name" />
+            <button action="/addStock" class="btn btn-success mb-3" type="submit">Add</button>
+
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Change</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+
+
+        <tbody>
+        <tr th:each="tempWallet: ${user.walletList}">
+
+            <td th:text="${tempWallet.nameW}" />
+            <td th:text="${tempWallet.price}" />
+            <td th:text="${tempWallet.change}" />
+
+            <td>
+                <div style="display: inline-block;">
+                    <!-- button to delete ID below, with prompt -->
+                    <a th:href="@{/delete(idW=${tempWallet.idW})}"class="btn btn-danger btn-sm"
+                       onclick="if (!(confirm('Are you sure you want to delete this stock?'))) return false">Delete</a>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+</div>
+
+</body>
+</html>
+

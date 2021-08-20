@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta nameW="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Stock Market Map</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet">
+    <link th:href= "@{../static/css/main.css}" rel="stylesheet" type= "text/css" />
+    <script type="text/javascript" th:src= "@{../static/js/app.js}"></script>
+    <link th:href="@{../img}" rel="import">
+
+</head>
+
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    html{
+        font-size: 10px;
+        font-family: 'Montserrat', sans-serif;
+        scroll-behavior: smooth;
+    }
+
+    a{
+        text-decoration: none;
+    }
+
+    .container {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+    }
+    p {
+        color: black;
+        font-size: 1.4rem;
+        margin-top: 5px;
+        line-height: 2.5rem;
+        font-weight: 300;
+        letter-spacing: 0.05rem;
+    }
+    .section-title {
+        font-size: 4rem;
+        font-weight: 300;
+        color: black;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2rem;
+        text-align: center;
+    }
+    .section-title span {
+        color: crimson;
+    }
+
+    .cta{
+        display: inline-block;
+        padding: 10px 30px;
+        color: white;
+        background-color: transparent;
+        border: 2px solid crimson;
+        font-size: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1rem;
+        margin-top: 30px;
+        transition: 0.3s ease;
+        transition-property: background-color, color;
+    }
+    .cta:hover {
+        color: white;
+        background-color: crimson;
+    }
+    .brand h1 {
+        font-size: 3rem;
+        text-transform: uppercase;
+        color: white;
+    }
+    .brand h1 span {
+        color: crimson;
+    }
+
+    /* Header section */
+    #header {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: auto;
+    }
+    #header .header {
+        min-height: 8vh;
+        background-color: rgba(31, 30, 30, 0.24);
+        transition: 0.4s ease background-color;
+    }
+    #header .nav-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+        max-width: 1300px;
+        padding: 0 10px;
+    }
+    #header .nav-list ul {
+        list-style: none;
+        position: absolute;
+        background-color: rgb(31, 30, 30);
+        width: 100vw;
+        height: 100vh;
+        left: 100%;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+        overflow-x: hidden;
+        transition: 0.5s ease left;
+    }
+    #header .nav-list ul.active {
+        left: 0%;
+    }
+    #header .nav-list ul a {
+        font-size: 2.5rem;
+        font-weight: 500;
+        letter-spacing: 0.2rem;
+        text-decoration: none;
+        color: white;
+        text-transform: uppercase;
+        padding: 20px;
+        display: block;
+    }
+    #header .nav-list ul a::after {
+        content: attr(data-after);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        color: rgba(240, 248, 255, 0.021);
+        font-size: 13rem;
+        letter-spacing: 50px;
+        z-index: -1;
+        transition: 0.3s ease letter-spacing;
+    }
+    #header .nav-list ul li:hover a::after {
+        transform: translate(-50%, -50%) scale(1);
+        letter-spacing: initial;
+    }
+    #header .nav-list ul li:hover a {
+        color: crimson;
+    }
+    #header .duda {
+        height: 60px;
+        width: 60px;
+        display: inline-block;
+        border: 3px solid white;
+        border-radius: 50%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        cursor: pointer;
+        transform: scale(0.8);
+        margin-left: 550px;
+    }
+    #header .duda:after {
+        position: absolute;
+        content: '';
+        height: 100%;
+        width: 100%;
+        border-radius: 50%;
+        border: 3px solid white;
+        animation: duda_puls 1s ease infinite;
+    }
+    #header .duda .bar {
+        height: 2px;
+        width: 30px;
+        position: relative;
+        background-color: white;
+        z-index: -1;
+    }
+    #header .duda .bar::after,
+    #header .duda .bar::before {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        left: 0;
+        background-color: white;
+        transition: 0.3s ease;
+        transition-property: top, bottom;
+    }
+    #header .duda .bar::after {
+        top: 8px;
+    }
+    #header .duda .bar::before {
+        bottom: 8px;
+    }
+    #header .duda.active .bar::before {
+        bottom: 0;
+    }
+    #header .duda.active .bar::after {
+        top: 0;
+    }
+    /* End Header section */
+
+    /* Mars Section */
+    #mars {
+        background-image: url("../img/correction.jpg");
+        background-size: cover;
+        background-position: top center;
+        position: relative;
+        z-index: 1;
+    }
+    #mars::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        background-color: black;
+        opacity: 0.7;
+        z-index: -1;
+    }
+    #mars .mars {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 50px;
+        justify-content: flex-start;
+    }
+    #mars h1 {
+        display: block;
+        width: fit-content;
+        font-size: 4rem;
+        position: relative;
+        color: transparent;
+        animation: text_reveal 0.5s ease forwards;
+        animation-delay: 1s;
+    }
+    #mars h1:nth-child(1) {
+        animation-delay: 1s;
+    }
+    #mars h1:nth-child(2) {
+        animation-delay: 2s;
+    }
+    #mars h1:nth-child(3) {
+        animation: text_reveal_name 0.5s ease forwards;
+        animation-delay: 3s;
+    }
+    #mars h1 span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0;
+        background-color: crimson;
+        animation: text_reveal_box 1s ease;
+        animation-delay: 0.5s;
+    }
+    #mars h1:nth-child(1) span {
+        animation-delay: 0.5s;
+    }
+    #mars h1:nth-child(2) span {
+        animation-delay: 1.5s;
+    }
+    #mars h1:nth-child(3) span {
+        animation-delay: 2.5s;
+    }
+
+    /* End Mars Section */
+
+    /* News Section */
+    #news .new{
+        flex-direction: column;
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 100px 0;
+    }
+    #news .new-top {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    #news .new-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 50px;
+
+    }
+    #news .new-item {
+        flex-basis: 100%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: column;
+        padding: 30px;
+        border-radius: 10px;
+        background-size: cover;
+        margin: 10px 5%;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+    }
+    #news .new-item::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        background-image: linear-gradient(60deg, #29323c 0%, #485563 100%);
+        opacity: 0.9;
+        z-index: -1;
+    }
+    #news .new-bottom .icon {
+        height: 80px;
+        width: 80px;
+        margin-bottom: 20px;
+    }
+    #news .new-item h2 {
+        font-size: 2rem;
+        color: white;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+    #news .new-item p {
+        color: white;
+        text-align: left;
+    }
+    /* End News Section */
+
+    /* Projects section */
+    #projects .projects {
+        flex-direction: column;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 100px 0;
+    }
+    #projects .projects-header h1 {
+        margin-bottom: 50px;
+    }
+    #projects .all-projects {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    #projects .project-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        width: 80%;
+        margin: 20px auto;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+    #projects .project-info {
+        padding: 30px;
+        flex-basis: 50%;
+        height: 100%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: column;
+        background-image: linear-gradient(60deg, #29323c 0%, #485563 100%);
+        color: white;
+    }
+    #projects .project-info h1 {
+        font-size: 4rem;
+        font-weight: 500;
+    }
+    #projects .project-info h2 {
+        font-size: 1.8rem;
+        font-weight: 500;
+        margin-top: 10px;
+    }
+    #projects .project-info p {
+        color: white;
+    }
+    #projects .project-img {
+        flex-basis: 50%;
+        height: 300px;
+        overflow: hidden;
+        position: relative;
+    }
+    #projects .project-img:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        background-image: linear-gradient(60deg, #29323c 0%, #485563 100%);
+        opacity: 0.7;
+    }
+
+    #projects .project-register{
+        flex-direction: column;
+
+        margin: 0 auto;
+        display: flex;
+        width: 100%;
+        margin-top: 20px;
+        padding: 100px 0;
+        left: -30px;
+        box-sizing: border-box;
+        max-width: 800px;
+        position: relative;
+        transform: translate(5%, -5%);
+        color: crimson;
+
+    }
+
+    #projects .project-callregister{
+        display: inline-block;
+        padding: 25px 100px;
+        height: 80px;
+        color: white;
+        background-color: crimson;
+        border: 2px solid crimson;
+        font-size: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1rem;
+        margin-top: 40px;
+        transition: 0.3s ease;
+        transition-property: background-color, color;
+        text-align: center;
+    }
+
+    #projects .project-callregister:hover {
+        color: black;
+        background-color: crimson;
+
+    }
+
+    #projects .project-img img {
+        transition: 0.3s ease transform;
+    }
+    #projects .project-item:hover .project-img img {
+        transform: scale(1.1);
+    }
+    /* End Projects section */
+
+    /* About Section */
+    #about .about {
+        flex-direction: column-reverse;
+        text-align: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 100px 20px;
+    }
+    #about .col-left {
+        width: 250px;
+        height: 360px;
+    }
+    #about .col-right {
+        width: 100%;
+    }
+    #about .col-right h2 {
+        font-size: 1.8rem;
+        font-weight: 500;
+        letter-spacing: 0.2rem;
+        margin-bottom: 10px;
+    }
+    #about .col-right p {
+        margin-bottom: 20px;
+    }
+    #about .col-right .cta {
+        color: black;
+        margin-bottom: 50px;
+        padding: 10px 20px;
+        font-size: 2rem;
+    }
+    #about .col-left .about-img {
+        height: 100%;
+        width: 100%;
+        position: relative;
+        border: 10px solid white;
+    }
+    #about .col-left .about-img::after {
+        content: '';
+        position: absolute;
+        left: -33px;
+        top: 19px;
+        height: 98%;
+        width: 98%;
+        border: 7px solid crimson;
+        z-index: -1;
+    }
+    /* End About Section */
+
+    /* contact Section */
+    #contact .contact {
+        flex-direction: column;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 90%;
+    }
+    #contact .contact-items {
+        /* max-width: 400px; */
+        width: 100%;
+    }
+    #contact .contact-item {
+        width: 80%;
+        padding: 20px;
+        text-align: center;
+        border-radius: 10px;
+        padding: 30px;
+        margin: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        box-shadow: 0px 0px 18px 0 #0000002c;
+        transition: 0.3s ease box-shadow;
+    }
+    #contact .contact-item:hover {
+        box-shadow: 0px 0px 5px 0 #0000002c;
+    }
+    #contact .icon {
+        width: 70px;
+        margin: 0 auto;
+        margin-bottom: 10px;
+    }
+    #contact .contact-info h1 {
+        font-size: 2.5rem;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    #contact .contact-info h2 {
+        font-size: 1.3rem;
+        line-height: 2rem;
+        font-weight: 500;
+    }
+    /*End contact Section */
+
+    /* Footer */
+    #footer {
+        background-image: linear-gradient(60deg, #29323c 0%, #485563 100%);
+    }
+    #footer .footer {
+        min-height: 200px;
+        flex-direction: column;
+        padding-top: 50px;
+        padding-bottom: 10px;
+    }
+    #footer h2 {
+        color: white;
+        font-weight: 500;
+        font-size: 1.8rem;
+        letter-spacing: 0.1rem;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    #footer .social-icon {
+        display: flex;
+        margin-bottom: 30px;
+    }
+    #footer .social-item {
+        height: 50px;
+        width: 50px;
+        margin: 0 5px;
+    }
+    #footer .social-item img {
+        filter: grayscale(1);
+        transition: 0.3s ease filter;
+    }
+    #footer .social-item:hover img {
+        filter: grayscale(0);
+    }
+    #footer p {
+        color: white;
+        font-size: 1.3rem;
+    }
+    /* End Footer */
+
+    /* Keyframes */
+    @keyframes duda_puls {
+        0% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: scale(1.4);
+        }
+    }
+    @keyframes text_reveal_box {
+        50% {
+            width: 100%;
+            left: 0;
+        }
+        100% {
+            width: 0;
+            left: 100%;
+        }
+    }
+    @keyframes text_reveal {
+        100% {
+            color: white;
+        }
+    }
+    @keyframes text_reveal_name {
+        100% {
+            color: crimson;
+            font-weight: 500;
+        }
+    }
+    /* End Keyframes */
+
+    /* Media Query For Tablet */
+    @media only screen and (min-width: 768px) {
+        .cta {
+            font-size: 2.5rem;
+            padding: 20px 60px;
+        }
+        h1.section-title {
+            font-size: 6rem;
+        }
+
+        /* Hero */
+        #mars h1 {
+            font-size: 7rem;
+        }
+        /* End Hero */
+
+        /* News Section */
+        #news .news-bottom .news-item {
+            flex-basis: 45%;
+            margin: 2.5%;
+        }
+        /* End News Section */
+
+        /* My Wallet */
+        #MyWallet .MyWallet-item {
+            flex-direction: row;
+        }
+        #MyWallet .MyWallet-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        #MyWallet .MyWallet-item {
+            height: 400px;
+            margin: 0;
+            width: 100%;
+            border-radius: 0;
+        }
+        #MyWallet .all-MyWallet .MyWallet-info {
+            height: 100%;
+        }
+        #MyWallet .all-MyWallet .MyWallet-img {
+            height: 100%;
+        }
+        /* End Wallet */
+
+        /* About */
+        #about .about {
+            flex-direction: row;
+        }
+        #about .col-left {
+            width: 600px;
+            height: 400px;
+            padding-left: 60px;
+        }
+        #about .about .col-left .about-img::after {
+            left: -45px;
+            top: 34px;
+            height: 98%;
+            width: 98%;
+            border: 10px solid crimson;
+        }
+        #about .col-right {
+            text-align: left;
+            padding: 30px;
+        }
+        #about .col-right h1 {
+            text-align: left;
+        }
+        /* End About */
+
+        /* contact  */
+        #contact .contact {
+            flex-direction: column;
+            padding: 100px 0;
+            align-items: center;
+            justify-content: center;
+            min-width: 20vh;
+        }
+        #contact .contact-items {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            margin: 0;
+        }
+        #contact .contact-item {
+            width: 30%;
+            margin: 0;
+            flex-direction: row;
+        }
+        #contact .contact-item .icon {
+            height: 100px;
+            width: 100px;
+        }
+        #contact .contact-item .icon img {
+            object-fit: contain;
+        }
+        #contact .contact-item .contact-info {
+            width: 100%;
+            text-align: left;
+            padding-left: 20px;
+        }
+        /* End contact  */
+    }
+    /* End Media Query For Tablet */
+
+    /* Media Query For Desktop */
+    @media only screen and (min-width: 1200px) {
+        /* header */
+        #header .duda {
+            display: none;
+        }
+        #header .nav-list ul {
+            position: initial;
+            display: block;
+            height: auto;
+            width: fit-content;
+            background-color: transparent;
+        }
+        #header .nav-list ul li {
+            display: inline-block;
+        }
+        #header .nav-list ul li a {
+            font-size: 1.8rem;
+        }
+        #header .nav-list ul a:after {
+            display: none;
+        }
+        /* End header */
+
+        #news .news-bottom .news-item {
+            flex-basis: 22%;
+            margin: 1.5%;
+        }
+    }
+    /* End  Media Query For Desktop */
+</style>
+
+<body>
+    <!-- Head -->
+    <section id="header">
+        <div class="header container">
+            <div class="nav-bar">
+                <div class="brand">
+                    <a href="#mars">
+                        <h1><span>S</span>tock <span>M</span>ap</h1>
+                    </a>
+                </div>
+                <div class="nav-list">
+                    <div class="duda">
+                        <div class="bar"></div>
+                    </div>
+                    <ul>
+                        <li><a href="#mars" data-after="Home">Home</a></li>
+                        <li><a href="#news" data-after="News">News</a></li>
+                        <li><a href="#projects" data-after="MyWallet">My Wallet</a></li>
+                        <li><a href="#about" data-after="About">About Us</a></li>
+                        <li><a href="#contact" data-after="Contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Head -->
+
+
+    <!-- Mars Section  -->
+    <section id="mars">
+        <div class="mars container">
+            <div>
+                <h1>Hello, <span></span></h1>
+                <h1>We are the <span></span></h1>
+                <h1>Stock Market Map <span></span></h1>
+                <a href="#projects" type="button" class="cta">Get my FREE e-book</a>
+            </div>
+        </div>
+    </section>
+    <!-- End Mars Section  -->
+
+    <!-- News Section -->
+    <section id="news">
+        <div class="new container">
+            <div class="new-top">
+                <h1 class="section-title">N<span>e</span>ws</h1>
+                <p>This part will show all the news related to the financial market.</p>
+            </div>
+            <div class="new-bottom">
+                <div class="new-item">
+                    <div class="icon"><img src="https://img.icons8.com/bubbles/100/000000/services.png"/></div>
+                    <h2> Latest News</h2>
+                    <p> Knows about this topic allows people and their business to take advantage of
+                        opportunity to grow and be aware of thee best positions.<a href="https://finance.yahoo.com/news/" target="_blank">
+                            Latest News. </a></p>
+                </div>
+                <div class="new-item">
+                    <div class="icon"><img src="https://img.icons8.com/bubbles/100/000000/services.png" /></div>
+                    <h2>Stock Market News</h2>
+                    <p>The Stock Market allows companies to raise money by offering stock shares and corporate bonds. The knowledge
+                        about this topic is important for everyone who wants to start an adventure in this challenging world. <a href="https://finance.yahoo.com/news/" target="_blank">
+                    Financial & Business news</a></p>
+                </div>
+                <div class="new-item">
+                    <div class="icon"><img src="https://img.icons8.com/bubbles/100/000000/services.png" /></div>
+                    <h2>Politics</h2>
+                    <p>Everything is politics. If you want to explore the financial world, the knowledge about politics is a must!
+                        Politics is vital for everyone, and it can be responsible for an important plays on the stocks market!<a href="https://finance.yahoo.com/news/" target="_blank">
+                    Politics News</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End News Section -->
+
+    <!-- Projects Section -->
+    <section id="projects">
+        <div class="projects container">
+            <div class="projects-header">
+                <h1 class="section-title">M<span>y W</span>allet</h1>
+            </div>
+            <div class="all-projects">
+                <div class="project-item">
+                    <div class="project-info">
+                        <h1>My Wallet</h1>
+                        <h2>Solid information in one place</h2>
+                        <p>My Wallet is a digital place designed to keep tracking the most important stocks from the US market.
+                            The dashboard is able to inform the most popular stocks, their prices in real time and many other information.
+                        </p>
+                    </div>
+
+                </div>
+                <div class="project-item">
+                    <div class="project-register">
+                        <h1 class="section-title"><span>A</span>ccess <span>Y</span>our <span>W</span>allet</h1>
+                        <a th:href="@{/register}" type="button" class="project-callregister">Register Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+    </section>
+    <!-- End Projects Section -->
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="about container">
+            <div class="col-left">
+                <div class="about-img">
+                </div>
+            </div>
+            <div class="col-right">
+                <h1 class="section-title">About <span>Us</span></h1>
+                <h2>Stock Map Team</h2>
+                <p>Place reserved to talk about the developers/project etc.</p>
+                <a href="#" class="cta">Download FREE e-book</a>
+            </div>
+        </div>
+    </section>
+    <!-- End About Section -->
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="contact container">
+            <div>
+                <h1 class="section-title">Contact <span>info</span></h1>
+            </div>
+            <div class="contact-items">
+                <div class="contact-item">
+                    <div class="icon"><img src="https://img.icons8.com/bubbles/100/000000/phone.png" /></div>
+                    <div class="contact-info">
+                        <h1>Phone</h1>
+                        <h2>+353 087 381 6212</h2>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="icon"><img src="https://img.icons8.com/bubbles/100/000000/new-post.png" /></div>
+                    <div class="contact-info">
+                        <h1>E-mail</h1>
+                        <h2>eduardaacavalcantee@gmail.com</h2>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="icon"><img src="https://img.icons8.com/bubbles/100/000000/map-marker.png" /></div>
+                    <div class="contact-info">
+                        <h1>Address</h1>
+                        <h2>Smithfield, Dublin, Ireland</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Contact Section -->
+
+    <!-- Footer -->
+    <section id="footer">
+        <div class="footer container">
+            <div class="brand">
+                <h1><span>S</span>tock <span>M</span>ap</h1>
+            </div>
+            <h2>Your Complete Financial Market Solution</h2>
+            <div class="social-icon">
+                <div class="social-item">
+                    <a href="#"><img src="https://img.icons8.com/bubbles/100/000000/facebook-new.png" /></a>
+                </div>
+                <div class="social-item">
+                    <a href="#"><img src="https://img.icons8.com/bubbles/100/000000/instagram-new.png" /></a>
+                </div>
+                <div class="social-item">
+                    <a href="#"><img src="https://img.icons8.com/bubbles/100/000000/twitter.png" /></a>
+                </div>
+            </div>
+            <p>Copyright © 2020 <a href="https://www.linkedin.com/in/eduarda-cavalcante/" target="_blank">Eduarda Cavalcante</a></p>
+        </div>
+    </section>
+    <!-- End Footer -->
+
+
+</body>
+</html>
